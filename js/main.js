@@ -141,49 +141,113 @@
 // const game = new Game(40);
 
 
+//===================== P5
+
 class Snake {
-  constructor(size){
-    this.canvasSize = size;
-    this.canvasSquares = 40;
-    this.size = Math.floor(size/this.canvasSquares);// number of pseudo squares
+  constructor(){
+    this.x = 0;
+    this.y = 0;
+    this.xspeed = 1;
+    this.yspeed = 0;
   }
-  draw(x = this.canvasSize/2, y = this.canvasSize/2, multiplier = 1){
-    this.x = x;
-    this.y = y;
-    this.long = this.size * multiplier;
-    let colOn = color(255, 204, 0);
-    fill(colOn);
-    noStroke();
-    return rect(this.x, this.y, this.long, this.size);
+  direction(x, y){
+    this.xspeed = x;
+    this.yspeed = y;
   }
-  moveRight() {
-    this.right = this.size;
-    setInterval(run, 400);
+  update(){
+    this.x = this.x + this.xspeed * square;
+    this.y = this.y + this.yspeed * square;
+    this.x = constrain(this.x, 0, canSize - square);
+    this.y = constrain(this.y, 0, canSize - square);
+
   }
-  move(){
-    this.right = this.right + this.size;
-    this.draw(this.right, 400);
+  draw(){
+    const col = color(255, 204, 0);
+    fill(col);
+    rect(this.x, this.y, square, square);
+  }
+  coords(){
+    console.log("x: " + this.x/square, "y: " + this.y/square);
   }
 }
 
+class Food{
+  constructor() {
+    this.x = x;
+    this. y = y;
+    this.shape = rect(this.x, this.y, 15, 15);
+  }
+  location(){
 
-//===================== P5
+  }
+}
 
-let snake;
+const pause = {
+  check: false,
+  true: () => {
+    noLoop();
+    pause.check = true;
+    pause.text();
+  },
+  false: () => {
+    loop();
+    pause.check = false;
+  },
+  text: () => {
+    let msg = "Pause";
+    textSize(40);
+    fill(255);
+    text(msg, 480, 600);
+  }
+};
 
+let snake,
+    move = [],
+    canSize = 600,
+    canvasColor = 51,
+    square = Math.floor(canSize/40), // number of pseudo squares
+    fps = 10;
+
+console.log(fps);
 function setup() {
-  let size = 800;
-  let canvas = createCanvas(size, size);
-  canvas.parent("grid");
-  background(51);
-  snake = new Snake(size);
-  noLoop();
+  createCanvas(canSize, canSize).parent("grid");
+  snake = new Snake(canSize);
+  frameRate(fps);
+  // noLoop();
+
 }
 
 function draw() {
-  snake.moveRight();
+  background(canvasColor);
+  snake.draw();
+  snake.update();
+  if(pause.check) {
+    pause.text();
+  }
 }
 
-function run() {
-  snake.move();
+function keyPressed(){
+  if(keyCode === UP_ARROW) {
+    // move.push([0, -1]);
+    snake.direction(0, -1);
+  }
+  else if(keyCode === RIGHT_ARROW){
+    // move.push([1, 0]);
+    snake.direction(1, 0);
+  }
+  else if(keyCode === DOWN_ARROW){
+    // move.push([0, 1]);
+    snake.direction(0, 1);
+
+  }
+  else if(keyCode === LEFT_ARROW){
+    // move.push([-1, 0]);
+    snake.direction(-1, 0);
+  }
+  else if(!pause.check && keyCode === 32){
+    pause.true();
+  }
+  else if(pause.check && keyCode === 32){
+    pause.false();
+  }
 }

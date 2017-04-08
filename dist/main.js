@@ -147,64 +147,136 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 // const game = new Game(40);
 
 
+//===================== P5
+
 var Snake = function () {
-  function Snake(size) {
+  function Snake() {
     _classCallCheck(this, Snake);
 
-    this.canvasSize = size;
-    this.canvasSquares = 40;
-    this.size = Math.floor(size / this.canvasSquares); // number of pseudo squares
+    this.x = 0;
+    this.y = 0;
+    this.xspeed = 1;
+    this.yspeed = 0;
   }
 
   _createClass(Snake, [{
+    key: "direction",
+    value: function direction(x, y) {
+      this.xspeed = x;
+      this.yspeed = y;
+    }
+  }, {
+    key: "update",
+    value: function update() {
+      this.x = this.x + this.xspeed * square;
+      this.y = this.y + this.yspeed * square;
+      this.x = constrain(this.x, 0, canSize - square);
+      this.y = constrain(this.y, 0, canSize - square);
+    }
+  }, {
     key: "draw",
     value: function draw() {
-      var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.canvasSize / 2;
-      var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.canvasSize / 2;
-      var multiplier = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
-
-      this.x = x;
-      this.y = y;
-      this.long = this.size * multiplier;
-      var colOn = color(255, 204, 0);
-      fill(colOn);
-      noStroke();
-      return rect(this.x, this.y, this.long, this.size);
+      var col = color(255, 204, 0);
+      fill(col);
+      rect(this.x, this.y, square, square);
     }
   }, {
-    key: "moveRight",
-    value: function moveRight() {
-      this.right = this.size;
-      setInterval(run, 400);
-    }
-  }, {
-    key: "move",
-    value: function move() {
-      this.right = this.right + this.size;
-      this.draw(this.right, 400);
+    key: "coords",
+    value: function coords() {
+      console.log("x: " + this.x / square, "y: " + this.y / square);
     }
   }]);
 
   return Snake;
 }();
 
-//===================== P5
+var Food = function () {
+  function Food() {
+    _classCallCheck(this, Food);
 
-var snake = void 0;
+    this.x = x;
+    this.y = y;
+    this.shape = rect(this.x, this.y, 15, 15);
+  }
 
+  _createClass(Food, [{
+    key: "location",
+    value: function location() {}
+  }]);
+
+  return Food;
+}();
+
+var pause = {
+  check: false,
+  true: function _true() {
+    noLoop();
+    pause.check = true;
+    pause.text();
+  },
+  false: function _false() {
+    loop();
+    pause.check = false;
+  },
+  text: function (_text) {
+    function text() {
+      return _text.apply(this, arguments);
+    }
+
+    text.toString = function () {
+      return _text.toString();
+    };
+
+    return text;
+  }(function () {
+    var msg = "Pause";
+    textSize(40);
+    fill(255);
+    text(msg, 480, 600);
+  })
+};
+
+var snake = void 0,
+    move = [],
+    canSize = 600,
+    canvasColor = 51,
+    square = Math.floor(canSize / 40),
+    // number of pseudo squares
+fps = 10;
+
+console.log(fps);
 function setup() {
-  var size = 800;
-  var canvas = createCanvas(size, size);
-  canvas.parent("grid");
-  background(51);
-  snake = new Snake(size);
-  noLoop();
+  createCanvas(canSize, canSize).parent("grid");
+  snake = new Snake(canSize);
+  frameRate(fps);
+  // noLoop();
 }
 
 function draw() {
-  snake.moveRight();
+  background(canvasColor);
+  snake.draw();
+  snake.update();
+  if (pause.check) {
+    pause.text();
+  }
 }
 
-function run() {
-  snake.move();
+function keyPressed() {
+  if (keyCode === UP_ARROW) {
+    // move.push([0, -1]);
+    snake.direction(0, -1);
+  } else if (keyCode === RIGHT_ARROW) {
+    // move.push([1, 0]);
+    snake.direction(1, 0);
+  } else if (keyCode === DOWN_ARROW) {
+    // move.push([0, 1]);
+    snake.direction(0, 1);
+  } else if (keyCode === LEFT_ARROW) {
+    // move.push([-1, 0]);
+    snake.direction(-1, 0);
+  } else if (!pause.check && keyCode === 32) {
+    pause.true();
+  } else if (pause.check && keyCode === 32) {
+    pause.false();
+  }
 }
